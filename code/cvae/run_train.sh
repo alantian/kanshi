@@ -1,6 +1,6 @@
 #!/bin/bash
 
-dropbox="../../dropbox/"
+dropbox="../../dropbox-local/"
 
 data_dir="$dropbox/scratch/cvae/data"
 data_signature=4ju

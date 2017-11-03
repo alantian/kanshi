@@ -1,6 +1,7 @@
 # Project:
 
 /dropbox
+/dropbox-local
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
