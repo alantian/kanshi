@@ -1,0 +1,8 @@
+External data:
+- corpus: https://github.com/rime-aca/corpus
+- ytenx-sync: https://github.com/BYVoid/ytenx/tree/master/ytenx/sync
+
+
+Processed data:
+- data: Our processed data.
+- misc: My handcrafted data.
