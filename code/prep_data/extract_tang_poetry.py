@@ -12,8 +12,8 @@ FLAGS = gflags.FLAGS
 gflags.DEFINE_string('input_files_pattern', '', 'glob pattern of input files')
 gflags.DEFINE_string('output_file', '', 'output file')
 
-def load_content(filepath):
 
+def load_content(filepath):
     def line_is_start(line):
         return len(line) >= 3 and line[0] == '第' and line[-1] == '筆'
 
@@ -23,25 +23,13 @@ def load_content(filepath):
     def process(buf):
         # buf = [line if len(line) >= 5 else '' for line in buf]
 
-        buf = [
-            re.sub(r'\[\d*\]','', line)
-            for line in buf
-        ]
+        buf = [re.sub(r'\[\d*\]', '', line) for line in buf]
 
-        buf = [
-            re.sub(r'（[^）]*）','', line)
-            for line in buf
-        ]
+        buf = [re.sub(r'（[^）]*）', '', line) for line in buf]
 
-        buf = [
-            re.sub(r'〔[^〕]*〕','', line)
-            for line in buf
-        ]
+        buf = [re.sub(r'〔[^〕]*〕', '', line) for line in buf]
 
-        buf = [
-            re.sub(r'　','', line)
-            for line in buf
-        ]
+        buf = [re.sub(r'　', '', line) for line in buf]
 
         sep = ':::'
         tot = sep.join(buf)
@@ -66,10 +54,12 @@ def load_content(filepath):
 
     return result
 
+
 def write(content, filepath):
     with open(filepath, 'w') as f:
         for line in content:
             print(line, file=f)
+
 
 def main():
     FLAGS(sys.argv)

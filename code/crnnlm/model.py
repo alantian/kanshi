@@ -11,8 +11,8 @@ from chainer.functions.loss.vae import gaussian_kl_divergence
 import chainer.links as L
 from chainer.cuda import cupy as cp
 
-
 import numpy as np
+
 
 def sequence_embed(embed, xs):
     x_len = [len(x) for x in xs]
@@ -21,7 +21,9 @@ def sequence_embed(embed, xs):
     exs = F.split_axis(ex, x_section, 0)
     return exs
 
+
 EOS = 0
+
 
 class Decoder(chainer.Chain):
     def __init__(self, charset_size, hidden_size, n_layers, dropout):
@@ -37,7 +39,6 @@ class Decoder(chainer.Chain):
             self.gru = L.NStepGRU(n_layers=n_layers, in_size=hidden_size, out_size=hidden_size, dropout=dropbox)
             self.W = L.Linear(hidden_size, charset_size)
 
-
     def __call__(self, ys):
         batch_size = len(ys)
         eos = self.xp.array([EOS], 'i')
@@ -48,8 +49,7 @@ class Decoder(chainer.Chain):
 
         concat_os = F.concat(os, axis=0)
         concat_ys_out = F.concat(ys_out, axis=0)
-        loss = F.sum(F.softmax_cross_entropy(
-            self.W(concat_os), concat_ys_out, reduce='no')) / batch_size
+        loss = F.sum(F.softmax_cross_entropy(self.W(concat_os), concat_ys_out, reduce='no')) / batch_size
 
         chainer.report({'loss': loss.data}, self)
         n_words = concat_ys_out.shape[0]
@@ -85,16 +85,13 @@ class Decoder(chainer.Chain):
                         for row_id in range(batch_size):
                             mask[row_id] = func_mask([int(r[row_id]) for r in result])
                             if mask[row_id].sum() == 0:
-                                mask[row_id, :] = 1.   # prevent error.
+                                mask[row_id, :] = 1.    # prevent error.
                         mask = self.xp.asarray(mask)
                     if use_random:
                         swy = cuda.to_cpu(F.softmax(wy.data, axis=1).data)
                         swy = np.power(swy, temperature)
                         swy = swy * cuda.to_cpu(mask)
-                        ys = [
-                            np.random.choice(len(row), p=normalize_p(row))
-                            for row in swy
-                        ]
+                        ys = [np.random.choice(len(row), p=normalize_p(row)) for row in swy]
                         ys = self.xp.asarray(ys).astype('i')
                     else:
                         ys = self.xp.argmax(wy.data * self.xp.asarray(mask), axis=1).astype('i')
@@ -114,7 +111,6 @@ class Decoder(chainer.Chain):
 
 def main():
     pass
-
 
 
 import pdb, traceback, sys, code

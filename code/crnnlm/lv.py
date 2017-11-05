@@ -13,6 +13,7 @@ yunmu_file = path.join(ytenx_sync_dir, 'kyonh/YonhMiuk.txt')
 guangyun_pingshui_file = path.join(misc_dir, 'guangyun-pingshuiyun.csv')
 yiti_file = path.join(ytenx_sync_dir, 'jihthex/JihThex.csv')
 
+
 def load_zi_to_xiaoyun_id_list():
     result = defaultdict(list)
     for line in open(zi_file):
@@ -21,6 +22,7 @@ def load_zi_to_xiaoyun_id_list():
         result[zi].append(xy_id)
 
     return result
+
 
 def load_xiaoyun_id_to_yunmu():
     # yunmu = 韻目, not 韻母!
@@ -31,6 +33,7 @@ def load_xiaoyun_id_to_yunmu():
         yunmu = tks[4]
         result[xy_id] = yunmu
     return result
+
 
 def load_yunmu_to_diao():
     # 韻目 -> 調 (1..4)
@@ -44,6 +47,7 @@ def load_yunmu_to_diao():
             if not yunmu.strip():
                 print(line)
     return result
+
 
 def load_yunmu_to_pingshui_yunmu(yunmu_list):
     mapping = {}
@@ -65,6 +69,7 @@ def load_yunmu_to_pingshui_yunmu(yunmu_list):
 
     return result
 
+
 def load_yiti_to_zhengti_list():
     result = defaultdict(list)
     for line in open(yiti_file):
@@ -80,12 +85,11 @@ def load_yiti_to_zhengti_list():
                     result[zi].append(_)
 
     # manual fix some cases where morden usage is not recorded in rythm books
-    for (a, b) in [
-        ('已', '巳'), ('笑', '𥬇'), ('疏', '䟽'), ('魂', '䰟'), ('島', '倒'),
-        ('候', '𠋫'), ('瀟', '潚'), ('總', '緫'), ('皓', '晧'), ('飆', '飊')
-    ]:
+    for (a, b) in [('已', '巳'), ('笑', '𥬇'), ('疏', '䟽'), ('魂', '䰟'), ('島', '倒'), ('候', '𠋫'), ('瀟', '潚'), ('總', '緫'),
+                   ('皓', '晧'), ('飆', '飊')]:
         result[a].append(b)
     return result
+
 
 class ZiFeature(object):
     def __init__(self):
@@ -99,10 +103,7 @@ class ZiFeature(object):
 
     def get_feature(self, input_):
         if isinstance(input_, list):
-            return [
-                self.get_feature(_)
-                for _ in input_
-            ]
+            return [self.get_feature(_) for _ in input_]
         else:
             if input_ in self.cache:
                 return self.cache[input_]
@@ -116,16 +117,16 @@ class ZiFeature(object):
                     pingshui_yunmu = self.yunmu_to_pingshui_yunmu[yunmu]
                     result.append((diao, yunmu, pingshui_yunmu))
             result = list(set(result))
-            result = list(sorted(result))  # sort, so 平聲 comes first
-            result = result[:1]  # only first
+            result = list(sorted(result))    # sort, so 平聲 comes first
+            result = result[:1]    # only first
             self.cache[input_] = result
             return result
 
+
 import numpy as np
 
+
 def calc_mask_5(zf, prefix, char_list, char2id, offset=1):
-
-
     def pingze(zi1, zi2, t):
         assert t in ('dui', 'nian')
         f1 = zf.get_feature(zi1)
@@ -155,16 +156,16 @@ def calc_mask_5(zf, prefix, char_list, char2id, offset=1):
     def yayun(zi1, zi2):
         f1 = zf.get_feature(zi1)
         f2 = zf.get_feature(zi2)
-        return any([_1[-1] == _2[-1] for _1 in f1 for _2 in f2])  # -2: 廣韻  -1:平水韻
+        return any([_1[-1] == _2[-1] for _1 in f1 for _2 in f2])    # -2: 廣韻  -1:平水韻
 
     s = [char_list[int(_) - offset] for _ in prefix]
     index = len(prefix)
     ju_id = index // 6
     ju_pos = index % 6
 
-    result = np.zeros((offset + len(char_list),), dtype=np.float32)
+    result = np.zeros((offset + len(char_list), ), dtype=np.float32)
 
-    if ju_id >= 24:  # overlength
+    if ju_id >= 24:    # overlength
         result[:offset] = 1.
         return result
 
@@ -175,12 +176,10 @@ def calc_mask_5(zf, prefix, char_list, char2id, offset=1):
             result[1 + char2id['。']] = 1.
         return result
 
-
-
     # pingze, yayun, etc
     if ju_id == 0:
         if ju_pos == 2:
-            if ze(s[(ju_id)*6 + 0]) and ze(s[(ju_id)*6 + 1]):
+            if ze(s[(ju_id) * 6 + 0]) and ze(s[(ju_id) * 6 + 1]):
                 for cid in range(len(char_list)):
                     if not ze(char_list[cid]):
                         result[1 + cid] = 1.
@@ -196,7 +195,7 @@ def calc_mask_5(zf, prefix, char_list, char2id, offset=1):
             result[:] = 1.
     else:
         if ju_pos == 2:
-            if ze(s[(ju_id)*6 + 0]) and ze(s[(ju_id)*6 + 1]):
+            if ze(s[(ju_id) * 6 + 0]) and ze(s[(ju_id) * 6 + 1]):
                 for cid in range(len(char_list)):
                     if not ze(char_list[cid]):
                         result[1 + cid] = 1.
@@ -204,12 +203,12 @@ def calc_mask_5(zf, prefix, char_list, char2id, offset=1):
                 result[:] = 1.
         if ju_pos == 1 or ju_pos == 3:
             for cid in range(len(char_list)):
-                if pingze(s[(ju_id-1) * 6 + ju_pos], char_list[cid], 'dui' if ju_id % 2 == 1 else 'nian'):
+                if pingze(s[(ju_id - 1) * 6 + ju_pos], char_list[cid], 'dui' if ju_id % 2 == 1 else 'nian'):
                     result[1 + cid] = 1.
         elif ju_pos == 4:
             if ju_id % 2 == 1 and ju_id > 1:
                 for cid in range(len(char_list)):
-                    if yayun(s[(ju_id-2) * 6 + ju_pos], char_list[cid]):
+                    if yayun(s[(ju_id - 2) * 6 + ju_pos], char_list[cid]):
                         result[1 + cid] = 1.
             elif ju_id == 1:
                 for cid in range(len(char_list)):
@@ -222,20 +221,20 @@ def calc_mask_5(zf, prefix, char_list, char2id, offset=1):
         else:
             result[:] = 1.
 
-
     # kill repeating char.
     for p in prefix:
         if p != 1 + char2id['，'] and p != 1 + char2id['。']:
             result[p] = 0.
     return result
 
-
     assert False
+
 
 def main():
     zi_feature = ZiFeature()
     cs = list('苟利國家生死以，豈因禍福避趨之。')
     print(zi_feature.get_feature(cs))
+
 
 import pdb, traceback, sys, code
 
