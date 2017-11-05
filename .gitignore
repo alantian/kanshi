@@ -3,6 +3,7 @@
 /dropbox
 /dropbox-local
 /scratch
+/other-repos
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

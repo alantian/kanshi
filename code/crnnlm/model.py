@@ -36,26 +36,27 @@ class Decoder(chainer.Chain):
         with self.init_scope():
             self.latent_rep_lin = L.Linear(n_layers * hidden_size)
             self.embedid = L.EmbedID(in_size=charset_size, out_size=hidden_size)
-            self.gru = L.NStepGRU(n_layers=n_layers, in_size=hidden_size, out_size=hidden_size, dropout=dropbox)
+            self.gru = L.NStepGRU(n_layers=n_layers, in_size=hidden_size, out_size=hidden_size, dropout=dropout)
             self.W = L.Linear(hidden_size, charset_size)
 
     def __call__(self, ys):
-        batch_size = len(ys)
-        eos = self.xp.array([EOS], 'i')
-        ys_in = [F.concat([eos, y], axis=0) for y in ys]
-        ys_out = [F.concat([y, eos], axis=0) for y in ys]
-        eys = sequence_embed(self.embedid, ys_in)
-        _, os = self.gru(None, eys)
+        with chainer.cuda.get_device(ys[0]):
+            batch_size = len(ys)
+            eos = self.xp.array([EOS], 'i')
+            ys_in = [F.concat([eos, y], axis=0) for y in ys]
+            ys_out = [F.concat([y, eos], axis=0) for y in ys]
+            eys = sequence_embed(self.embedid, ys_in)
+            _, os = self.gru(None, eys)
 
-        concat_os = F.concat(os, axis=0)
-        concat_ys_out = F.concat(ys_out, axis=0)
-        loss = F.sum(F.softmax_cross_entropy(self.W(concat_os), concat_ys_out, reduce='no')) / batch_size
+            concat_os = F.concat(os, axis=0)
+            concat_ys_out = F.concat(ys_out, axis=0)
+            loss = F.sum(F.softmax_cross_entropy(self.W(concat_os), concat_ys_out, reduce='no')) / batch_size
 
-        chainer.report({'loss': loss.data}, self)
-        n_words = concat_ys_out.shape[0]
-        perp = self.xp.exp(loss.data * batch_size / n_words)
-        chainer.report({'perp': perp}, self)
-        return loss
+            chainer.report({'loss': loss.data}, self)
+            n_words = concat_ys_out.shape[0]
+            perp = self.xp.exp(loss.data * batch_size / n_words)
+            chainer.report({'perp': perp}, self)
+            return loss
 
     def sample(self, batch_size=1, use_random=True, temperature=1.0, max_len=40, guide_ids=None, func_mask=None):
         guide_ids = [] if not guide_ids else guide_ids

@@ -34,7 +34,9 @@ gflags.DEFINE_integer('batch_size', 512, 'batch size')
 gflags.DEFINE_integer('n_epoch', 100, 'number of epoch')
 gflags.DEFINE_integer('log_interval', 10, 'log ever that many iters.')
 gflags.DEFINE_boolean('show_sample', True, 'whether to show sampling at end of epoch')
-gflags.DEFINE_integer('gpu_id', 0, 'id of gpu to use. -1 for cpu only.')
+gflags.DEFINE_string(
+    'gpu_id_list', '', 'comma sperated list of ids of gpu to use. zero length list for cpu only triainng.'
+)
 gflags.DEFINE_string('save_dir', './', 'dir to save model')
 gflags.DEFINE_string('load_model', 'model_snapshot_iter_latest', 'model snapshot under save dir to load, if exits')
 gflags.DEFINE_string(
@@ -74,11 +76,13 @@ def main():
     # 1. build model
     if FLAGS.model == 'rnnlm':
         model = Decoder(
-            charset_size=charset_size, hidden_size=FLAGS.hidden_size, n_layers=FLAGS.n_layers, dropout=FALGS.dropout
+            charset_size=charset_size, hidden_size=FLAGS.hidden_size, n_layers=FLAGS.n_layers, dropout=FLAGS.dropout
         )
 
-    if FLAGS.gpu_id >= 0:
-        chainer.cuda.get_device_from_id(FLAGS.gpu_id).use()
+    gpu_id_list = [int(_) for _ in FLAGS.gpu_id_list.split(',')]
+
+    if len(gpu_id_list) > 0:
+        chainer.cuda.get_device_from_id(gpu_id_list[0]).use()
         model.to_gpu()
 
     load_model = path.join(save_dir, FLAGS.load_model)
@@ -119,7 +123,20 @@ def main():
 
     train_iter = chainer.iterators.SerialIterator(train_data, FLAGS.batch_size)
 
-    updater = training.StandardUpdater(train_iter, optimizer, device=FLAGS.gpu_id)
+    if len(gpu_id_list) == 0:
+        updater = training.StandardUpdater(train_iter, optimizer, device=-1)
+    elif len(gpu_id_list) == 1:
+        gpu_id = gpu_id_list[0]
+        updater = training.StandardUpdater(train_iter, optimizer, device=gpu_id)
+    else:
+        devices = {('main' if index == 0 else ('second%d' % gpu_id)): gpu_id
+                   for index, gpu_id in enumerate(gpu_id_list)}
+        print('multiple gpu training with devices = %s' % devices)
+        updater = training.ParallelUpdater(
+            train_iter,
+            optimizer,
+            devices=devices,
+        )
     trainer = training.Trainer(updater, stop_trigger=(FLAGS.n_epoch, 'epoch'), out=save_dir)
 
     trainer.extend(extensions.LogReport(trigger=(FLAGS.log_interval, 'iteration')))
