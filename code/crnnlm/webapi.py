@@ -29,6 +29,7 @@ gflags.DEFINE_integer('port', 8000, 'port for server')
 gflags.DEFINE_string('api_prefix', '/api/kanshi', 'prefix for handeling http api')
 gflags.DEFINE_integer('buffer_size', 100, 'size of buffer')
 gflags.DEFINE_integer('fill_size', 10, 'size of each single filling')
+gflags.DEFINE_boolean('debug', False, 'wether to run server in debug mode.')
 FLAGS(sys.argv)
 
 
@@ -109,7 +110,7 @@ def sample():
 def main():
     threading.Thread(target=fill_queue_func).start()
 
-    run(host=FLAGS.host, port=FLAGS.port)
+    run(host=FLAGS.host, port=FLAGS.port, debug=FLAGS.debug)
 
 
 import pdb, traceback, sys, code
