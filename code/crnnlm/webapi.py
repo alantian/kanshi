@@ -2,28 +2,14 @@
 
 #!/usr/bin/env python3
 
-from collections import Counter
 import json
-import os
 from os import path
 import queue
-import random
-import re
 import sys
 import threading
 
-from bottle import route, run, template, response
-import chainer
-from chainer import dataset, iterators, optimizers, serializers, training
-from chainer.training import extensions
-import chainer.cuda as cuda
-from chainer.cuda import cupy as cp
-import chainer.functions as F
-import chainer.links as L
-import h5py
-import numpy as np
-from tqdm import tqdm
-
+from bottle import route, run, response
+from chainer import serializers
 from model import Decoder
 
 import gflags
@@ -59,7 +45,7 @@ def gs(x, char_list):
 def prepare_ctx():
     # 0. load dataset
     char_list = [line.strip().split('\t')[0] for line in open(FLAGS.vocab_file)]
-    char_to_id = char2id = {c: i for i, c in enumerate(char_list)}
+    char2id = {c: i for i, c in enumerate(char_list)}
     charset_size = len(char_list) + 1
 
     # 1. build model
