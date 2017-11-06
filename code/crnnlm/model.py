@@ -10,7 +10,6 @@ import chainer.cuda as cuda
 import chainer.functions as F
 from chainer.functions.loss.vae import gaussian_kl_divergence
 import chainer.links as L
-from chainer.cuda import cupy as cp
 
 import numpy as np
 
