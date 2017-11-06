@@ -7,7 +7,7 @@ n_layers=4
 dropout=0.1
 
 host="localhost"
-port="8100"
+port="8002"
 
 data_dir="../../scratch/crnnlm/data"
 vocab_file="$data_dir/$data_signature-vocab.txt"
