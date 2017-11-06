@@ -17,7 +17,6 @@ import chainer.links as L
 import h5py
 import numpy as np
 from tqdm import tqdm
-import nltk.translate.bleu_score as blue
 
 from model import Decoder
 
@@ -79,7 +78,7 @@ def main():
             charset_size=charset_size, hidden_size=FLAGS.hidden_size, n_layers=FLAGS.n_layers, dropout=FLAGS.dropout
         )
 
-    gpu_id_list = [int(_) for _ in FLAGS.gpu_id_list.split(',')]
+    gpu_id_list = [int(_) for _ in FLAGS.gpu_id_list.split(',')] if len(FLAGS.gpu_id_list) > 0 else []
 
     if len(gpu_id_list) > 0:
         chainer.cuda.get_device_from_id(gpu_id_list[0]).use()

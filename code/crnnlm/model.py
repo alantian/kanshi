@@ -5,6 +5,7 @@ import six
 import numpy as np
 
 import chainer
+from chainer import variable
 import chainer.cuda as cuda
 import chainer.functions as F
 from chainer.functions.loss.vae import gaussian_kl_divergence
@@ -57,6 +58,18 @@ class Decoder(chainer.Chain):
             perp = self.xp.exp(loss.data * batch_size / n_words)
             chainer.report({'perp': perp}, self)
             return loss
+
+    def webdnn_anchor(self):
+        xid = variable.Variable(self.xp.full((1, 1), 0, 'i'))
+        xs = self.embedid(xid)    # shape = (1, 1, hidden_size)
+
+        hx = self.gru.init_hx(xs)
+        ws = [[w.w0, w.w1, w.w2, w.w3, w.w4, w.w5] for w in self.gru]
+        bs = [[w.b0, w.b1, w.b2, w.b3, w.b4, w.b5] for w in self.gru]
+        hy, ys = self.gru.rnn(self.gru.n_layers, self.gru.dropout, hx, ws, bs, xs)
+        y = ys[0]
+        wy = self.W(y)    # shape = (1, charset_size)
+        return [xid, hx], [wy, hy]
 
     def sample(self, batch_size=1, use_random=True, temperature=1.0, max_len=40, guide_ids=None, func_mask=None):
         guide_ids = [] if not guide_ids else guide_ids
