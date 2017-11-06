@@ -102,8 +102,14 @@ def fill_queue_func():
 def sample():
     response.set_header('Access-Control-Allow-Origin', '*')
     poem = q.get()
+    data = {'poem': poem, 'success': True}
+    return json_dumps(data)
+
+@route(FLAGS.api_prefix + '/debug_info')
+def sample():
+    response.set_header('Access-Control-Allow-Origin', '*')
     qsize = q.qsize()
-    data = {'poem': poem, 'success': True, 'qsize': qsize}
+    data = {'qsize': qsize}
     return json_dumps(data)
 
 
