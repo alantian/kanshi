@@ -1,6 +1,6 @@
 #!/bin/bash
 
-data_signature=4ju
+data_signature=4ju5yan
 model=rnnlm
 hidden_size=300
 n_layers=4
@@ -8,8 +8,8 @@ dropout=0.1
 
 host="localhost"
 port="8002"
-sample_t_low=1.5
-sample_t_high=2.0
+sample_t_low=1.4
+sample_t_high=1.8
 
 data_dir="../../scratch/crnnlm/data"
 vocab_file="$data_dir/$data_signature-vocab.txt"

@@ -15,6 +15,7 @@ FLAGS = gflags.FLAGS
 gflags.DEFINE_string('input_file', '', 'input file')
 gflags.DEFINE_string('output_file', '', 'output file')
 gflags.DEFINE_integer('nb_ju', 2, 'number of ju. Can be either 2 or 4.')
+gflags.DEFINE_boolean('force_5yan', False, 'wether to force 5 yan.')
 
 FLAGS(sys.argv)
 
@@ -25,6 +26,16 @@ def is_valid_sent(sent):
         if sent[n - 1] == '。' and sent[n // 2 - 1] == '，':
             return True
     return False
+
+def force_5yan(poem):
+    poem = poem.replace('，', '，$')
+    poem = poem.replace('。', '。$')
+    sents = poem.split('$')
+    return ''.join([s[-6:] for s in sents])
+
+    if len(poem) == 32:
+        return ''.join([poem[i+2:i+8] for i in range(0, 32, 8)])
+    return poem
 
 
 def chunk_poem(poem):
@@ -40,6 +51,8 @@ def chunk_poem(poem):
     result = [_ for _ in result if is_valid_sent(_)]    # each containing 2 ju
     gap = FLAGS.nb_ju // 2
     result = [''.join(result[start:start + gap]) for start in range(0, len(result), gap) if start + gap <= len(result)]
+    if FLAGS.force_5yan:
+        result = [force_5yan(_) for _ in result]
     return result
 
 

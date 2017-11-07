@@ -1,6 +1,6 @@
 #!/bin/bash
 
-data_signature=4ju
+data_signature=4ju5yan
 model=rnnlm
 hidden_size=300
 n_layers=4

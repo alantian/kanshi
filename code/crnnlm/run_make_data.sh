@@ -16,3 +16,9 @@ python3 ./make_data.py \
   --vocab_file "$output_data_dir/4ju-vocab.txt" \
   --data_file "$output_data_dir/4ju-data.h5" \
   ;
+
+python3 ./make_data.py \
+  --input_file "$input_data_dir/四句五言.txt"\
+  --vocab_file "$output_data_dir/4ju5yan-vocab.txt" \
+  --data_file "$output_data_dir/4ju5yan-data.h5" \
+  ;
