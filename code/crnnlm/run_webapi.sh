@@ -8,8 +8,8 @@ dropout=0.1
 
 host="localhost"
 port="8002"
-sample_t_low=2.2
-sample_t_high=2.4
+sample_t_low=2.7
+sample_t_high=3.2
 
 data_dir="../../scratch/crnnlm/data"
 vocab_file="$data_dir/$data_signature-vocab.txt"
