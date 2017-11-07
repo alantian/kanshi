@@ -8,6 +8,8 @@ dropout=0.1
 
 host="localhost"
 port="8002"
+sample_t_low=1.5
+sample_t_high=2.0
 
 data_dir="../../scratch/crnnlm/data"
 vocab_file="$data_dir/$data_signature-vocab.txt"
@@ -28,5 +30,7 @@ python3 ./webapi.py \
   --dropout "$dropout" \
   --host "$host" \
   --port "$port" \
+  --sample_t_low "$sample_t_low" \
+  --sample_t_high "$sample_t_high" \
   "$@" \
   ;
