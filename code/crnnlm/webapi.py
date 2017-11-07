@@ -5,6 +5,7 @@
 import json
 from os import path
 import queue
+import random
 import sys
 import threading
 
@@ -23,12 +24,13 @@ gflags.DEFINE_float('dropout', 0.1, 'value for dropout')
 gflags.DEFINE_integer('batch_size', 512, 'batch size')
 gflags.DEFINE_string('save_dir', './', 'dir to save model')
 gflags.DEFINE_string('load_model', 'model_snapshot_iter_latest', 'model snapshot under save dir to load, if exits')
-gflags.DEFINE_float('sample_t', 2.8, 't for sampling')
+gflags.DEFINE_float('sample_t_low', 2.6, 't for sampling (lower bound)')
+gflags.DEFINE_float('sample_t_high', 3.0, 't for sampling (higher bound)')
 gflags.DEFINE_string('host', 'localhost', 'host to listen for server')
 gflags.DEFINE_integer('port', 8000, 'port for server')
 gflags.DEFINE_string('api_prefix', '/api/kanshi', 'prefix for handeling http api')
 gflags.DEFINE_integer('buffer_size', 100, 'size of buffer')
-gflags.DEFINE_integer('fill_size', 10, 'size of each single filling')
+gflags.DEFINE_integer('fill_size', 5, 'size of each single filling')
 gflags.DEFINE_boolean('debug', False, 'wether to run server in debug mode.')
 FLAGS(sys.argv)
 
@@ -81,10 +83,11 @@ def json_dumps(obj):
 
 def sample_many(nb=1):
     global ctx
+    t = random.uniform(FLAGS.sample_t_low, FLAGS.sample_t_high)
     ys = ctx['model'].sample(
         batch_size=nb,
         use_random=True,
-        temperature=FLAGS.sample_t,
+        temperature=t,
         max_len=40,
         func_mask=ctx['func_mask'],
     )
