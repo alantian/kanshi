@@ -17,9 +17,9 @@ yiti_file = path.join(ytenx_sync_dir, 'jihthex/JihThex.csv')
 def load_zi_to_xiaoyun_id_list():
     result = defaultdict(list)
     for line in open(zi_file):
-        zi, xy_id = line.strip().split(' ')[:2]
+        zi, xy_id, _, mean = line.strip().split(' ')[:4]
         xy_id = int(xy_id)
-        result[zi].append(xy_id)
+        result[zi].append((xy_id, mean))
 
     return result
 
@@ -111,13 +111,19 @@ class ZiFeature(object):
             input_zi = input_
             result = []
             for zi in [input_zi] + self.yiti_to_zhengti_list.get(input_zi, []):
-                for xiaoyun_id in self.zi_to_xiaoyun_id_list.get(zi, []):
+                for xiaoyun_id, mean in self.zi_to_xiaoyun_id_list.get(zi, []):
                     yunmu = self.xiaoyun_id_to_yunmu[xiaoyun_id]
                     diao = self.yunmu_to_diao[yunmu]
                     pingshui_yunmu = self.yunmu_to_pingshui_yunmu[yunmu]
-                    result.append((diao, yunmu, pingshui_yunmu))
+                    result.append((diao, zi, mean, yunmu, pingshui_yunmu))
+
+                if zi == input_zi and len(result) > 0:
+                    break   # 非異體字，至此可矣。
+
             result = list(set(result))
-            result = list(sorted(result))    # sort, so 平聲 comes first
+            result = list(sorted(result, key=lambda _: len(_[1]), reverse=True))
+            # sort, so char with longer mean comes first (I assume this means this is the more frequent usage)
+
             result = result[:1]    # only first
             self.cache[input_] = result
             return result
