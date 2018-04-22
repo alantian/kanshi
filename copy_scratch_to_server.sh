@@ -1,3 +1,3 @@
 #!/bin/bash
 
-scp -3 pascal:~/ws/kanshi/scratch_pack.tar web@alantian.net:~/ws/kanshi/
+scp scratch_pack.tar lab-ws:~/nginx/public/share/kanshi

@@ -6,7 +6,7 @@ hidden_size=300
 n_layers=4
 dropout=0.1
 
-host="localhost"
+host="0.0.0.0"
 port="8002"
 sample_t_low=2.7
 sample_t_high=3.2
