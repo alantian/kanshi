@@ -16,7 +16,7 @@ vocab_file="$data_dir/$data_signature-vocab.txt"
 data_file="$data_dir/$data_signature-data.h5"
 signature="model-$model-data_signature-$data_signature-hidden_size-$hidden_size-n_layers-$n_layers-dropout-$dropout-dev"
 save_dir="../../scratch/crnnlm/model/$signature/"
-buffer_size=1000
+buffer_size=100
 
 echo "use $save_dir"
 
