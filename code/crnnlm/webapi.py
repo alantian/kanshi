@@ -101,16 +101,18 @@ def fill_queue_func():
             q.put(s)
 
 
+# Nginx sever will add this header. no need to do it here.
+
 @route(FLAGS.api_prefix + '/sample')
 def sample():
-    response.set_header('Access-Control-Allow-Origin', '*')
+    # response.set_header('Access-Control-Allow-Origin', '*')
     poem = q.get()
     data = {'poem': poem, 'success': True}
     return json_dumps(data)
 
 @route(FLAGS.api_prefix + '/debug_info')
 def sample():
-    response.set_header('Access-Control-Allow-Origin', '*')
+    # response.set_header('Access-Control-Allow-Origin', '*')
     qsize = q.qsize()
     data = {'qsize': qsize}
     return json_dumps(data)
