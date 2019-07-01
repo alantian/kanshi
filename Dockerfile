@@ -20,7 +20,7 @@ RUN apt-get update -y && \
 
 RUN pip3 install -r pip_freeze
 
-RUN wget https://srv0.alantian.net/public/share/kanshi/scratch_pack.tar && \
+RUN wget https://storage.googleapis.com/store.alantian.net/depot/scratch_pack.tar && \
     tar xvf scratch_pack.tar
 
 RUN rm -rf dropbox scratch scratch_pack.tar
