@@ -9,23 +9,26 @@ RUN apt-get update -y && \
 RUN locale-gen en_US.UTF-8
 ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 #-------------------------------------------------------------------------------
-
-ADD . /kanshi
-
-WORKDIR /kanshi
-
 RUN apt-get update -y && \
     apt-get install -y coreutils python3 python3-pip wget && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
+#-------------------------------------------------------------------------------
 
+WORKDIR /kanshi
+
+RUN wget  -q --show-progress https://storage.googleapis.com/store.alantian.net/depot/scratch_pack.tar && \
+    tar xvf scratch_pack.tar && rm -rf dropbox scratch scratch_pack.tar
+RUN mv scratch_pack scratch
+
+ADD ./pip_freeze /kanshi/pip_freeze
 RUN pip3 install -r pip_freeze
 
-RUN wget https://storage.googleapis.com/store.alantian.net/depot/scratch_pack.tar && \
-    tar xvf scratch_pack.tar
+ADD ./code /kanshi/code
+ADD ./data /kanshi/data
 
-RUN rm -rf dropbox scratch scratch_pack.tar
-
-RUN mv scratch_pack scratch
+RUN useradd -u 48735 testuser
+RUN chown -R testuser:testuser /kanshi
+USER testuser
 
 WORKDIR /kanshi/code/crnnlm/
 
